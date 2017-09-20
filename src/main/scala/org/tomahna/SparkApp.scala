@@ -8,6 +8,11 @@ object SparkApp extends App {
   @transient lazy val sc: SparkContext = new SparkContext(conf)
 
   override def main(args: Array[String]): Unit = {
-    val lines = sc.textFile(args.head).flatMap(Rating.fromCSV)
+    val ratings = sc.textFile(args.head).flatMap(Rating.fromCSV).cache()
+    val lookUpProduct = LookUpProduct.itemLookUpRDD(ratings)
+    val lookUpUser = LookUpUser.userLookUpRDD(ratings)
+
+    LookUpProduct.save(lookUpProduct, "lookup_product.csv")
+    LookUpUser.save(lookUpUser, "lookup_user.csv")
   }
 }
