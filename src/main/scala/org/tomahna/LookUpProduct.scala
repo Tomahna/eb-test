@@ -4,14 +4,21 @@ import java.io.FileWriter
 
 import org.apache.spark.rdd.RDD
 
-object LookUpProduct {
-  def itemLookUpRDD(ratings: RDD[Rating]): RDD[(String, Long)] =
-    ratings.map(_.itemId).distinct().zipWithUniqueId()
+case class LookUpProduct(itemId: String, itemIdAsLong: Long)
 
-  def save(items: RDD[(String, Long)], file: String): Unit = {
+object LookUpProduct {
+  def itemLookUpRDD(ratings: RDD[Rating]): RDD[LookUpProduct] =
+    ratings
+      .map(_.itemId)
+      .distinct()
+      .zipWithUniqueId()
+      .map((LookUpProduct.apply _).tupled)
+      .persist()
+
+  def save(items: RDD[LookUpProduct], file: String): Unit = {
     val fw = new FileWriter(file, true)
     try {
-      items.collect().foreach(i => fw.write(s"${i._1},${i._2}"))
+      items.map(i => s"${i.itemId},${i.itemIdAsLong}\n").collect().foreach(fw.write)
     } finally fw.close()
   }
 }
