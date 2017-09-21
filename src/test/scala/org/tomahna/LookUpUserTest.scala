@@ -11,6 +11,6 @@ class LookUpUserTest extends FlatSpec with Matchers {
       LookUpUser.userLookUpRDD(ratings)
 
     val ids = lookUpUser.map(u => u.userIdAsLong).collect().sorted
-    ids should be(0l to ids.last)
+    ids.diff(0l to ids.last) shouldBe empty
   }
 }

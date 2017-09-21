@@ -11,14 +11,17 @@ object LookUpUser {
     ratings
       .map(_.userId)
       .distinct()
-      .zipWithUniqueId()
+      .zipWithIndex()
       .map((LookUpUser.apply _).tupled)
       .persist()
 
   def save(users: RDD[LookUpUser], file: String): Unit = {
     val fw = new FileWriter(file, true)
     try {
-      users.map(u => s"${u.userId},${u.userIdAsLong}\n").collect().foreach(fw.write)
+      users
+        .map(u => s"${u.userId},${u.userIdAsLong}\n")
+        .collect()
+        .foreach(fw.write)
     } finally fw.close()
   }
 }
