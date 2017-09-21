@@ -14,11 +14,10 @@ class RatingsTest extends FlatSpec with Matchers {
     val latestRating = Ratings.latestDate(ratings)
     val aggregates = Ratings.aggregate(ratings, latestRating).persist()
 
-    val size = aggregates.aggregate(0l)((n, _) => n + 1, _ + _)
-    val groupedSize = aggregates
-      .map(r => r._1)
-      .distinct()
-      .aggregate(0l)((n, _) => n + 1, _ + _)
+    val size = aggregates.count()
+    val groupedSize = aggregates.map(r => r._1).distinct().count()
     size should be(groupedSize)
   }
+
+
 }
